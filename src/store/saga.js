@@ -7,6 +7,7 @@ function* getList() {
 	try {
 		const res = yield axios.get('/api/todolist.json');
 		yield put(getSafa(res.data.data));
+		console.log(123);
 	} catch (error) {
 		console.log(error);
 	}
