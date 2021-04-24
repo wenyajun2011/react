@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import './style.css';
 import 'antd/dist/antd.css';
 import store from './store';
 import {
