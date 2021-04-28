@@ -12,7 +12,6 @@ export const IconfontStyle = createGlobalStyle`@font-face {
 		/* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
 			url('./iconfont.svg?t=1619274823777#iconfont') format('svg'); /* iOS 4.1- */
 }
-
 .iconfont {
 	font-family: 'iconfont' !important;
 	font-size: 16px;

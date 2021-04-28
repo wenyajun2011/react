@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { CSSTransition } from 'react-transition-group';
 import { actionCreators } from './store';
+import { Link } from 'react-router-dom';
 import {
 	HeaderWrapper,
 	Logo,
@@ -20,19 +21,36 @@ import {
 
 class Header extends Component {
 	getListArea() {
-		const { focused, list, page, handleMouseEnter } = this.props;
+		const {
+			focused,
+			list,
+			page,
+			mouseIn,
+			handleMouseEnter,
+			handleMouseLeave,
+			handleOnchangePage,
+			totalPage,
+		} = this.props;
 		const newList = list.toJS();
 		const pageList = [];
-		for (let index = (page - 1) * 10; index < page * 10; index++) {
-			pageList.push(<SearchInfoItem key={index}>{newList[index]}</SearchInfoItem>);
+		if (newList.length) {
+			for (let index = (page - 1) * 10; index < page * 10; index++) {
+				pageList.push(<SearchInfoItem key={index}>{newList[index]}</SearchInfoItem>);
+			}
 		}
 
-		if (focused) {
+		if (focused || mouseIn) {
 			return (
-				<SearchInfo onMouseEnter={handleMouseEnter}>
+				<SearchInfo onMouseEnter={handleMouseEnter} onMouseLeave={handleMouseLeave}>
 					<SearchInfoTitle>
 						热门搜索
-						<SearchInfoSwitch>换一批</SearchInfoSwitch>
+						<SearchInfoSwitch
+							onClick={() => {
+								handleOnchangePage(page, totalPage);
+							}}
+						>
+							<span className="iconfont">&#xe851;</span> 换一批
+						</SearchInfoSwitch>
 					</SearchInfoTitle>
 					<SearchInfoList>{pageList}</SearchInfoList>
 				</SearchInfo>
@@ -42,15 +60,25 @@ class Header extends Component {
 		}
 	}
 	render() {
-		const { focused, handleInputFocus, handleInputBlur } = this.props;
+		const { focused, handleInputFocus, handleInputBlur, list, login } = this.props;
 		return (
 			<div>
 				<HeaderWrapper>
-					<Logo href="/" />
+					<Link to="/">
+						<Logo />
+					</Link>
+
 					<Nav>
 						<NavItem className="left active">首页</NavItem>
 						<NavItem className="left">下载</NavItem>
-						<NavItem className="right">登录</NavItem>
+						{login ? (
+							<NavItem className="right">退出</NavItem>
+						) : (
+							<Link to="/login">
+								<NavItem className="right">登录</NavItem>
+							</Link>
+						)}
+
 						<NavItem className="right">
 							<span className="iconfont">&#xe601;</span>
 						</NavItem>
@@ -58,7 +86,7 @@ class Header extends Component {
 							<CSSTransition in={focused} timeout={300} classNames="slide">
 								<NavSearch
 									className={focused ? 'focused' : ''}
-									onFocus={handleInputFocus}
+									onFocus={() => handleInputFocus(list)}
 									onBlur={handleInputBlur}
 								></NavSearch>
 							</CSSTransition>
@@ -85,12 +113,15 @@ const mapStateToProps = state => {
 		focused: state.getIn(['header', 'focused']),
 		list: state.getIn(['header', 'list']),
 		page: state.getIn(['header', 'page']),
+		totalPage: state.getIn(['header', 'totalPage']),
+		mouseIn: state.getIn(['header', 'mouseIn']),
+		login: state.getIn(['login', 'login']),
 	};
 };
 const mapDispatchToprops = dispatch => {
 	return {
-		handleInputFocus() {
-			dispatch(actionCreators.getList());
+		handleInputFocus(list) {
+			list.size === 0 && dispatch(actionCreators.getList());
 			dispatch(actionCreators.searchFocus());
 		},
 		handleInputBlur() {
@@ -98,6 +129,16 @@ const mapDispatchToprops = dispatch => {
 		},
 		handleMouseEnter() {
 			dispatch(actionCreators.mouseEnter());
+		},
+		handleMouseLeave() {
+			dispatch(actionCreators.mouseLeave());
+		},
+		handleOnchangePage(page, totalPage) {
+			if (page < totalPage) {
+				dispatch(actionCreators.changePage(page + 1));
+			} else {
+				dispatch(actionCreators.changePage(1));
+			}
 		},
 	};
 };

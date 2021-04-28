@@ -18,6 +18,13 @@ export const searchBlur = () => ({
 export const mouseEnter = () => ({
 	type: constants.MOUSE_ENTER,
 });
+export const mouseLeave = () => ({
+	type: constants.MOUSE_LEAVE,
+});
+export const changePage = page => ({
+	type: constants.CHANGE_PAGE,
+	page,
+});
 
 export const getList = () => {
 	return dispatch => {
